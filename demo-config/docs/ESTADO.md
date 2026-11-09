@@ -3,7 +3,7 @@
 **Proyecto**: PasoFirme  
 **Módulo**: `demo-config/`  
 **Última actualización**: 8 de noviembre de 2026  
-**Etapa actual**: **Etapa 05: Ensayo de Git, Refresh en Caliente y Auditoría Final (COMPLETADA)**  
+**Etapa actual**: **Publicación en GitHub y Validación de Clon Limpio (COMPLETADA)**  
 
 ---
 
@@ -17,7 +17,8 @@
 | **03** | **Implementación de los Tres Clientes (`catalogo`, `ofertas`, `envios`)** | **COMPLETADA** | Proyectos Maven compilados (`BUILD SUCCESS`); Config Data estricto sin `optional:`; `@RefreshScope` e `instanciaArranque` inmutable validados en local. |
 | **04** | **Contenerización y Orquestación Docker Compose** | **COMPLETADA** | 4 Dockerfiles multietapa (Java 21); `compose.yaml` autónomo (`pasofirme-config-demo`); los 4 contenedores en estado **`Up (healthy)`**; ensayo de clonación limpia auditado. |
 | **05** | **Ensayo de Git, Refresh y Entrega de Código** | **COMPLETADA** | Modificación en GitHub (`013b6e49...`); Config Server detectó cambio en vivo; cliente conservó valor viejo hasta `POST /actuator/refresh`; nuevo mensaje verificado manteniendo el mismo UUID; aislamiento demostrado; colección Postman, script de verificación y guion de sustentación generados. |
-| **06** | *(Opcional) Interfaz Web Básica de Exposición* | *PENDIENTE* | Página HTML estática en `catalogo-demo` (puerto 18881). |
+| **06** | **Publicación Oficial en GitHub y Validación de Clon Limpio** | **COMPLETADA** | Repositorio `pasofirme-cloud-config.git` publicado con commit `3d7ea36`. Exclusión estricta de `.env`, `target/`, logs y archivos sensibles (119 archivos excluidos). Clonación limpia fuera de la carpeta de trabajo y arranque con Docker Compose auditados con éxito. |
+| **07** | *(Opcional) Interfaz Web Básica de Exposición* | *PENDIENTE* | Página HTML estática en `catalogo-demo` (puerto 18881). |
 
 ---
 
@@ -26,7 +27,7 @@
 | Repositorio | URL HTTPS Oficial | Rama | Estado Actual |
 |---|---|:---:|---|
 | **Configuración** | `https://github.com/Dan101111111/pasofirme-config-repo.git` | `main` | **OPERATIVO / PUBLICADO EN VIVO**. Contiene los 7 archivos `.properties` y el `README.md`. Commits registrados: `6c5c521` (inicial), `47d0249` (carga inicial propiedades), `013b6e4` (actualización demostrativa). |
-| **Código del Proyecto** | `https://github.com/Dan101111111/pasofirme-cloud-config.git` | `main` | **CREADO / EN ESPERA**. Repositorio de código consolidado; preparado para la subida final del proyecto completo. |
+| **Código del Proyecto** | `https://github.com/Dan101111111/pasofirme-cloud-config.git` | `main` | **PUBLICADO / VERIFICADO**. Código fuente completo de PasoFirme y `demo-config/` publicado en `main` bajo commit `3d7ea36` (preservando el commit inicial `d24e164`). Clonación limpia y arranque verificado. |
 
 ---
 
@@ -119,8 +120,7 @@ La prueba se realizó sobre los cuatro contenedores en ejecución en Docker Desk
 
 ## 6. Registro de Tareas Pendientes para Futuras Entregas
 
-Conforme a las instrucciones del proyecto, los siguientes materiales complementarios quedan identificados pero **no han sido creados todavía**:
+Conforme a las instrucciones del proyecto, los siguientes materiales complementarios quedan identificados pero **no forman parte de esta entrega técnica**:
 - **Mini Guía Técnica en formato PDF**.
 - **Presentación en diapositivas PPT** (máximo 8 diapositivas para sustentación grupal).
-- **Consolidación en Repositorio de Código**: Subida del código completo a `https://github.com/Dan101111111/pasofirme-cloud-config.git`.
-- **(Opcional) Etapa 06**: Página HTML sencilla en `catalogo-demo` para visualización web.
+- **(Opcional) Etapa 07**: Página HTML sencilla en `catalogo-demo` para visualización web interactiva en navegador.
