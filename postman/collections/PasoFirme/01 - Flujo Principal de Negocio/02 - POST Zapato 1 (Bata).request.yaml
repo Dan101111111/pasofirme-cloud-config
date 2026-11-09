@@ -1,0 +1,38 @@
+$kind: http-request
+description: Registro de primer zapato válido. Almacena id1 para verificaciones posteriores.
+url: "{{baseUrl}}/api/zapatos"
+method: POST
+headers:
+  Content-Type: application/json
+  Accept: application/json
+body:
+  type: text
+  content: |-
+    {
+      "marca": "Bata",
+      "talla": 39,
+      "precio": 129900.50,
+      "fechaIngreso": "2026-10-27",
+      "disponible": true
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status code es 201 Created", function () {
+          pm.response.to.have.status(201);
+      });
+
+      pm.test("ID es entero positivo y los datos coinciden exactamente", function () {
+          var res = pm.response.json();
+          pm.expect(res.id).to.be.a('number');
+          pm.expect(res.id).to.be.above(0);
+          pm.expect(Number.isInteger(res.id)).to.be.true;
+          pm.expect(res.marca).to.eql("Bata");
+          pm.expect(res.talla).to.eql(39);
+          pm.expect(Number(res.precio)).to.eql(129900.50);
+          pm.expect(res.fechaIngreso).to.eql("2026-10-27");
+          pm.expect(res.disponible).to.be.true;
+          pm.collectionVariables.set("id1", res.id);
+      });
+    language: text/javascript
+order: 2000

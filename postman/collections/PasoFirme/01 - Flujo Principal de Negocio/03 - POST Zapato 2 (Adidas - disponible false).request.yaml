@@ -1,0 +1,39 @@
+$kind: http-request
+description: Registro de segundo zapato. Comprueba que el valor booleano false se conserve y no mute a null.
+url: "{{baseUrl}}/api/zapatos"
+method: POST
+headers:
+  Content-Type: application/json
+  Accept: application/json
+body:
+  type: text
+  content: |-
+    {
+      "marca": "Adidas",
+      "talla": 42,
+      "precio": 249900.00,
+      "fechaIngreso": "2026-10-26",
+      "disponible": false
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status code es 201 Created", function () {
+          pm.response.to.have.status(201);
+      });
+
+      pm.test("ID es distinto de id1 y disponible es estrictamente false", function () {
+          var res = pm.response.json();
+          var id1 = Number(pm.collectionVariables.get("id1"));
+          pm.expect(res.id).to.be.a('number');
+          pm.expect(res.id).to.not.eql(id1);
+          pm.expect(res.marca).to.eql("Adidas");
+          pm.expect(res.talla).to.eql(42);
+          pm.expect(Number(res.precio)).to.eql(249900.00);
+          pm.expect(res.fechaIngreso).to.eql("2026-10-26");
+          pm.expect(res.disponible).to.not.be.null;
+          pm.expect(res.disponible).to.be.false;
+          pm.collectionVariables.set("id2", res.id);
+      });
+    language: text/javascript
+order: 3000

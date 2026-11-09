@@ -1,0 +1,32 @@
+$kind: http-request
+description: "Demuestra el contrato de campos opcionales: solo 'marca' es obligatorio; los otros cuatro campos se persisten y devuelven como null."
+url: "{{baseUrl}}/api/zapatos"
+method: POST
+headers:
+  Content-Type: application/json
+  Accept: application/json
+body:
+  type: text
+  content: |-
+    {
+      "marca": "Puma"
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status code es 201 Created", function () {
+          pm.response.to.have.status(201);
+      });
+
+      pm.test("Marca válida y los cuatro campos opcionales son null", function () {
+          var res = pm.response.json();
+          pm.expect(res.id).to.be.a('number');
+          pm.expect(res.marca).to.eql("Puma");
+          pm.expect(res.talla).to.be.null;
+          pm.expect(res.precio).to.be.null;
+          pm.expect(res.fechaIngreso).to.be.null;
+          pm.expect(res.disponible).to.be.null;
+          pm.collectionVariables.set("idOpcional", res.id);
+      });
+    language: text/javascript
+order: 1000

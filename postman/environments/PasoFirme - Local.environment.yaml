@@ -1,0 +1,4 @@
+name: PasoFirme - Local
+values:
+  - key: baseUrl
+    value: 'http://localhost:18080'

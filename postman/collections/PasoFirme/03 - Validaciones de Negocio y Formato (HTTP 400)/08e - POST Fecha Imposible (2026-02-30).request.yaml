@@ -1,0 +1,22 @@
+$kind: http-request
+description: Fecha inexistente en el calendario (30 de febrero). Deserialización falla y responde 400.
+url: "{{baseUrl}}/api/zapatos"
+method: POST
+headers:
+  Content-Type: application/json
+  Accept: application/json
+body:
+  type: text
+  content: |-
+    {
+      "marca": "Nike",
+      "fechaIngreso": "2026-02-30"
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status code es 400 Bad Request", function () {
+          pm.response.to.have.status(400);
+      });
+    language: text/javascript
+order: 8000

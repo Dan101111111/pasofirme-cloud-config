@@ -1,0 +1,23 @@
+$kind: http-request
+description: Precio menor a cero. Viola @DecimalMin. Debe responder 400.
+url: "{{baseUrl}}/api/zapatos"
+method: POST
+headers:
+  Content-Type: application/json
+  Accept: application/json
+body:
+  type: text
+  content: |-
+    {
+      "marca": "Nike",
+      "talla": 40,
+      "precio": -50000.00
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status code es 400 Bad Request", function () {
+          pm.response.to.have.status(400);
+      });
+    language: text/javascript
+order: 6000

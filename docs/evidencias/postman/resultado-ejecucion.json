@@ -1,0 +1,87 @@
+{
+	"id": "6ae16b2dc41e5ff9b51c0237",
+	"name": "PasoFirme",
+	"timestamp": "2026-10-28T03:25:35.015Z",
+	"collection_id": "026dCadE96bCa2dBfa57C879",
+	"folder_id": 0,
+	"environment_id": "57854984-314b-40f5-9ce2-c1e2ff44517f",
+	"totalPass": 31,
+	"delay": 0,
+	"persist": true,
+	"status": "finished",
+	"startedAt": "2026-10-28T03:25:33.243Z",
+	"totalFail": 0,
+	"results": [],
+	"count": 1,
+	"totalTime": 0,
+	"collection": {
+		"requests": [
+			{
+				"id": "1cEf8be0b42FcEa6C6Ee6DBA"
+			},
+			{
+				"id": "63A8139ffEDFf18F7991cc22"
+			},
+			{
+				"id": "Bc3a3a3BF03ec17e3f92B0b5"
+			},
+			{
+				"id": "adD92d908D238a3026ddf8Fb"
+			},
+			{
+				"id": "c259Db56C2CEAd582CfdC4C6"
+			},
+			{
+				"id": "02C8E87Ee017CaAc277EDa49"
+			},
+			{
+				"id": "e2e20FcfC6acddfefe04bcec"
+			},
+			{
+				"id": "b3e5BEfd9D35B33DDDb288db"
+			},
+			{
+				"id": "Ef2df5F0CCa84F0BCaD5D34C"
+			},
+			{
+				"id": "dBda24A719F2BD38f8cfCeff"
+			},
+			{
+				"id": "BFfd9cA2eDe2c9FaAFFd4cf3"
+			},
+			{
+				"id": "CDf0E863c07e4329f24CEa42"
+			},
+			{
+				"id": "FfCf5E8c8ef22fbD6908030A"
+			},
+			{
+				"id": "dDc3efFC69C8cEB4E483c041"
+			},
+			{
+				"id": "Bf788EBfAaCe29dBB8deEa92"
+			},
+			{
+				"id": "ef5c6efEcfc8eed8De22EF1d"
+			},
+			{
+				"id": "9832FBfAeB4e2C8de6DFB6a7"
+			},
+			{
+				"id": "4C3Acd6d9ff8dBc26BCFcbd9"
+			},
+			{
+				"id": "af59829c1Ecd1dafc7fc47b8"
+			},
+			{
+				"id": "0B238ffdE395eB76EBeC8DcF"
+			},
+			{
+				"id": "AAD3Dc9BA7a5Ac53a7F9bDED"
+			},
+			{
+				"id": "E1553342EE3C075C5CC1d8D5"
+			}
+		]
+	}
+}

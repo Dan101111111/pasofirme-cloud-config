@@ -1,0 +1,33 @@
+$kind: http-request
+description: Comprueba que ninguno de los métodos rechazados (DELETE, PUT, PATCH) modificó ni eliminó datos.
+url: "{{baseUrl}}/api/zapatos"
+method: GET
+headers:
+  Accept: application/json
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status code es 200 OK", function () {
+          pm.response.to.have.status(200);
+      });
+
+      pm.test("Registros inalterados tras intentos rechazados de DELETE/PUT/PATCH", function () {
+          var currentList = pm.response.json();
+          var preList = JSON.parse(pm.collectionVariables.get("preRechazos"));
+
+          pm.expect(currentList.length).to.eql(preList.length);
+
+          preList.forEach(function(preItem) {
+              var match = currentList.find(function(c) { return c.id === preItem.id; });
+              pm.expect(match, "El registro con ID " + preItem.id + " debe persistir").to.not.be.undefined;
+              pm.expect(match.marca).to.eql(preItem.marca);
+              pm.expect(match.talla).to.eql(preItem.talla);
+              pm.expect(match.precio).to.eql(preItem.precio);
+              pm.expect(match.fechaIngreso).to.eql(preItem.fechaIngreso);
+              pm.expect(match.disponible).to.eql(preItem.disponible);
+          });
+
+          pm.collectionVariables.set("countPreValidacion", currentList.length);
+      });
+    language: text/javascript
+order: 5000

@@ -1,0 +1,20 @@
+$kind: http-request
+description: Verifica que ninguno de los intentos con código 400 haya persistido filas en base de datos.
+url: "{{baseUrl}}/api/zapatos"
+method: GET
+headers:
+  Accept: application/json
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status code es 200 OK", function () {
+          pm.response.to.have.status(200);
+      });
+
+      pm.test("Cantidad de registros idéntica: ninguna petición 400 agregó filas", function () {
+          var currentList = pm.response.json();
+          var prevCount = Number(pm.collectionVariables.get("countPreValidacion"));
+          pm.expect(currentList.length).to.eql(prevCount);
+      });
+    language: text/javascript
+order: 10000

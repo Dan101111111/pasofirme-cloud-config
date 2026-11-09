@@ -1,0 +1,15 @@
+$kind: http-request
+name: 05b - DELETE Elemento /api/zapatos/{{id1}}
+description: Intento de borrado individual sobre subruta /api/zapatos/{id}. Al no existir la ruta en el servicio, debe responder 404.
+url: "{{baseUrl}}/api/zapatos/{{id1}}"
+method: DELETE
+headers:
+  Accept: application/json
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status code es 404 Not Found", function () {
+          pm.response.to.have.status(404);
+      });
+    language: text/javascript
+order: 2000

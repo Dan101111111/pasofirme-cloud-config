@@ -1,0 +1,48 @@
+# Compilados y artefactos de construcción
+target/
+**/target/
+*.jar
+*.war
+
+# Variables de entorno sensibles (se conserva .env.example)
+.env
+!.env.example
+
+# Archivos de configuración de IDEs y editores
+.idea/
+*.iml
+.vscode/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Archivos de logs y temporales
+*.log
+logs/
+**/logs/
+tmp/
+temp/
+*.tmp
+*.bak
+.eureka.pid
+**/.eureka.pid
+.servicio.pid
+**/.servicio.pid
+.gateway.pid
+**/.gateway.pid
+
+# Sistema operativo
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# Archivos de empaquetado temporal
+*.zip
+*.tar.gz
+
+# IMPORTANTE: Se conservan expresamente los Maven Wrappers
+!**/mvnw
+!**/mvnw.cmd
+!**/.mvn/wrapper/maven-wrapper.properties
+!**/.mvn/wrapper/maven-wrapper.jar

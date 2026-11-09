@@ -1,0 +1,74 @@
+services:
+  servidor-eureka:
+    build:
+      context: ./servidor-eureka
+      dockerfile: Dockerfile
+    container_name: pasofirme-eureka
+    hostname: servidor-eureka
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:18760:18760"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    networks:
+      - pasofirme-net
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f -s http://localhost:18760/ || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 15
+      start_period: 20s
+
+  servicio-zapatos:
+    build:
+      context: ./servicio-zapatos
+      dockerfile: Dockerfile
+    container_name: pasofirme-servicio-zapatos
+    hostname: servicio-zapatos
+    restart: unless-stopped
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      DB_USERNAME: ${MYSQL_USER:-zapatos_app}
+      DB_PASSWORD: ${MYSQL_PASSWORD}
+      eureka.client.service-url.defaultZone: http://servidor-eureka:18760/eureka/
+      eureka.instance.hostname: servicio-zapatos
+    networks:
+      - pasofirme-net
+    depends_on:
+      mysql:
+        condition: service_healthy
+      servidor-eureka:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f -s http://localhost:18761/actuator/health | grep UP || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 15
+      start_period: 25s
+
+  pasarela-gateway:
+    build:
+      context: ./pasarela-gateway
+      dockerfile: Dockerfile
+    container_name: pasofirme-gateway
+    hostname: pasarela-gateway
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:18080:18080"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      eureka.client.service-url.defaultZone: http://servidor-eureka:18760/eureka/
+      eureka.instance.hostname: pasarela-gateway
+    networks:
+      - pasofirme-net
+    depends_on:
+      servidor-eureka:
+        condition: service_healthy
+      servicio-zapatos:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f -s http://localhost:18080/api/zapatos || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 15
+      start_period: 25s

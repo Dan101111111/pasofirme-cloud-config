@@ -1,0 +1,11 @@
+$kind: collection
+description: Colección completa de pruebas de contrato y funcionales para el sistema distribuido PasoFirme. Todas las peticiones se realizan a través de la pasarela Gateway (puerto 18080) hacia el microservicio de zapatos.
+variables:
+  baseUrl: http://localhost:18080
+  id1: ""
+  id2: ""
+  idOpcional: ""
+  idNuevo: ""
+  preRechazos: "[]"
+  countPreValidacion: "0"
+  initialIds: ""

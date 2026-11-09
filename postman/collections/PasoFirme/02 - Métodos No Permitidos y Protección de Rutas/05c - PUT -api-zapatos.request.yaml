@@ -1,0 +1,27 @@
+$kind: http-request
+name: 05c - PUT /api/zapatos
+description: Intento de actualización PUT con JSON válido. Debe responder 405.
+url: "{{baseUrl}}/api/zapatos"
+method: PUT
+headers:
+  Content-Type: application/json
+  Accept: application/json
+body:
+  type: text
+  content: |-
+    {
+      "id": {{id1}},
+      "marca": "Intento PUT",
+      "talla": 40,
+      "precio": 150000.00,
+      "fechaIngreso": "2026-10-27",
+      "disponible": true
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status code es 405 Method Not Allowed", function () {
+          pm.response.to.have.status(405);
+      });
+    language: text/javascript
+order: 3000

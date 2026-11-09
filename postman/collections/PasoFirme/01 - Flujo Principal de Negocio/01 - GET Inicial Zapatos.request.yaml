@@ -1,0 +1,33 @@
+$kind: http-request
+description: Consulta inicial de la colección. Comprueba respuesta 200 y formato de arreglo JSON sin exigir base de datos vacía.
+url: "{{baseUrl}}/api/zapatos"
+method: GET
+headers:
+  Accept: application/json
+scripts:
+  - type: beforeRequest
+    code: |-
+      // Reiniciar variables transitorias al iniciar la ejecucion de la coleccion
+      pm.collectionVariables.set("id1", "");
+      pm.collectionVariables.set("id2", "");
+      pm.collectionVariables.set("idOpcional", "");
+      pm.collectionVariables.set("idNuevo", "");
+      pm.collectionVariables.set("preRechazos", "[]");
+      pm.collectionVariables.set("countPreValidacion", "0");
+      pm.collectionVariables.set("initialIds", "[]");
+    language: text/javascript
+  - type: afterResponse
+    code: |-
+      pm.test("Status code es 200 OK", function () {
+          pm.response.to.have.status(200);
+      });
+
+      pm.test("Respuesta es un arreglo JSON y guarda IDs iniciales", function () {
+          var data = pm.response.json();
+          pm.expect(Array.isArray(data)).to.be.true;
+          var initialIds = data.map(function(item) { return item.id; });
+          pm.collectionVariables.set("initialIds", JSON.stringify(initialIds));
+          pm.collectionVariables.set("countPreValidacion", data.length);
+      });
+    language: text/javascript
+order: 1000

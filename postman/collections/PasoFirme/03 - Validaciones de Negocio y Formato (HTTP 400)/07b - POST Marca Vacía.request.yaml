@@ -1,0 +1,25 @@
+$kind: http-request
+description: Intento de registro con 'marca' vacía. Debe responder 400.
+url: "{{baseUrl}}/api/zapatos"
+method: POST
+headers:
+  Content-Type: application/json
+  Accept: application/json
+body:
+  type: text
+  content: |-
+    {
+      "marca": "",
+      "talla": 38,
+      "precio": 99000.00,
+      "fechaIngreso": "2026-10-27",
+      "disponible": true
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status code es 400 Bad Request", function () {
+          pm.response.to.have.status(400);
+      });
+    language: text/javascript
+order: 2000

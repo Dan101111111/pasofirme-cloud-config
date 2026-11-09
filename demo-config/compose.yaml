@@ -1,0 +1,94 @@
+name: pasofirme-config-demo
+
+services:
+  config-server-demo:
+    build:
+      context: ./config-server-demo
+      dockerfile: Dockerfile
+    hostname: config-server-demo
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:18888:18888"
+    environment:
+      CONFIG_GIT_URI: "${CONFIG_GIT_URI:?ERROR: Debe definir la variable CONFIG_GIT_URI en demo-config/.env con la URL HTTPS de pasofirme-config-repo}"
+    networks:
+      - config-demo-net
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f -s http://localhost:18888/actuator/health | grep '\"status\":\"UP\"' || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 15
+      start_period: 20s
+
+  catalogo-demo:
+    build:
+      context: ./catalogo-demo
+      dockerfile: Dockerfile
+    hostname: catalogo-demo
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:18881:18881"
+    environment:
+      DEMO_PROFILE: ${DEMO_PROFILE:-dev}
+      CONFIG_SERVER_URL: http://config-server-demo:18888
+    networks:
+      - config-demo-net
+    depends_on:
+      config-server-demo:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f -s http://localhost:18881/api/demo | grep 'catalogo-demo' || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 15
+      start_period: 20s
+
+  ofertas-demo:
+    build:
+      context: ./ofertas-demo
+      dockerfile: Dockerfile
+    hostname: ofertas-demo
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:18882:18882"
+    environment:
+      DEMO_PROFILE: ${DEMO_PROFILE:-dev}
+      CONFIG_SERVER_URL: http://config-server-demo:18888
+    networks:
+      - config-demo-net
+    depends_on:
+      config-server-demo:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f -s http://localhost:18882/api/demo | grep 'ofertas-demo' || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 15
+      start_period: 20s
+
+  envios-demo:
+    build:
+      context: ./envios-demo
+      dockerfile: Dockerfile
+    hostname: envios-demo
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:18883:18883"
+    environment:
+      DEMO_PROFILE: ${DEMO_PROFILE:-dev}
+      CONFIG_SERVER_URL: http://config-server-demo:18888
+    networks:
+      - config-demo-net
+    depends_on:
+      config-server-demo:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f -s http://localhost:18883/api/demo | grep 'envios-demo' || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 15
+      start_period: 20s
+
+networks:
+  config-demo-net:
+    name: pasofirme-config-net

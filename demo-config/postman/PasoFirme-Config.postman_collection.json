@@ -1,0 +1,454 @@
+{
+	"info": {
+		"_postman_id": "pasofirme-config-collection-2026",
+		"name": "PasoFirme - Spring Cloud Config Demo",
+		"description": "Colección de pruebas para la demostración de Spring Cloud Config en PasoFirme. Incluye consultas a Config Server, lectura remota de microservicios clientes y operaciones manuales de refresco dinámico en caliente.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "1. Consultas a Config Server (18888)",
+			"item": [
+				{
+					"name": "1.1 Health Check - Config Server",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code es 200 OK', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test('Config Server reporta estado UP', function () {",
+									"    var json = pm.response.json();",
+									"    pm.expect(json.status).to.eql('UP');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:18888/actuator/health",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "18888",
+							"path": [
+								"actuator",
+								"health"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "1.2 Catalogo Demo - Dev (Config Server)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code es 200 OK', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test('Devuelve nombre, label y version Git no vacia', function () {",
+									"    var json = pm.response.json();",
+									"    pm.expect(json.name).to.eql('catalogo-demo');",
+									"    pm.expect(json.label).to.eql('main');",
+									"    pm.expect(json.version).to.not.be.empty;",
+									"    pm.expect(json.propertySources).to.be.an('array').that.is.not.empty;",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:18888/catalogo-demo/dev/main",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "18888",
+							"path": [
+								"catalogo-demo",
+								"dev",
+								"main"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "1.3 Catalogo Demo - Prod (Config Server)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code es 200 OK', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test('Contiene fuentes de produccion', function () {",
+									"    var json = pm.response.json();",
+									"    pm.expect(json.profiles).to.include('prod');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:18888/catalogo-demo/prod/main",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "18888",
+							"path": [
+								"catalogo-demo",
+								"prod",
+								"main"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "1.4 Ofertas Demo - Dev (Config Server)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code es 200 OK', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test('Nombre es ofertas-demo', function () {",
+									"    var json = pm.response.json();",
+									"    pm.expect(json.name).to.eql('ofertas-demo');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:18888/ofertas-demo/dev/main",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "18888",
+							"path": [
+								"ofertas-demo",
+								"dev",
+								"main"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "1.5 Envios Demo - Dev (Config Server)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code es 200 OK', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test('Nombre es envios-demo', function () {",
+									"    var json = pm.response.json();",
+									"    pm.expect(json.name).to.eql('envios-demo');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:18888/envios-demo/dev/main",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "18888",
+							"path": [
+								"envios-demo",
+								"dev",
+								"main"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "2. Consultas a Clientes de Negocio",
+			"item": [
+				{
+					"name": "2.1 Catalogo Demo - GET /api/demo",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code es 200 OK', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test('Estructura completa de respuesta demo', function () {",
+									"    var json = pm.response.json();",
+									"    pm.expect(json.servicio).to.eql('catalogo-demo');",
+									"    pm.expect(json.tienda).to.eql('PasoFirme');",
+									"    pm.expect(json.mensaje).to.not.be.empty;",
+									"    pm.expect(json.instanciaArranque).to.not.be.empty;",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:18881/api/demo",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "18881",
+							"path": [
+								"api",
+								"demo"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "2.2 Ofertas Demo - GET /api/demo",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code es 200 OK', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test('Estructura completa de respuesta ofertas', function () {",
+									"    var json = pm.response.json();",
+									"    pm.expect(json.servicio).to.eql('ofertas-demo');",
+									"    pm.expect(json.tienda).to.eql('PasoFirme');",
+									"    pm.expect(json.mensaje).to.include('descuento');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:18882/api/demo",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "18882",
+							"path": [
+								"api",
+								"demo"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "2.3 Envios Demo - GET /api/demo",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code es 200 OK', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test('Estructura completa de respuesta envios', function () {",
+									"    var json = pm.response.json();",
+									"    pm.expect(json.servicio).to.eql('envios-demo');",
+									"    pm.expect(json.tienda).to.eql('PasoFirme');",
+									"    pm.expect(json.mensaje).to.include('Entrega');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:18883/api/demo",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "18883",
+							"path": [
+								"api",
+								"demo"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "3. Refresco Dinamico en Caliente (Actuator)",
+			"item": [
+				{
+					"name": "3.1 Refresh Catalogo Demo (POST)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code es 200 OK', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test('Responde con arreglo de claves modificadas', function () {",
+									"    var json = pm.response.json();",
+									"    pm.expect(json).to.be.an('array');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:18881/actuator/refresh",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "18881",
+							"path": [
+								"actuator",
+								"refresh"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "3.2 Refresh Ofertas Demo (POST)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code es 200 OK', function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:18882/actuator/refresh",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "18882",
+							"path": [
+								"actuator",
+								"refresh"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "3.3 Refresh Envios Demo (POST)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code es 200 OK', function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:18883/actuator/refresh",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "18883",
+							"path": [
+								"actuator",
+								"refresh"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
+

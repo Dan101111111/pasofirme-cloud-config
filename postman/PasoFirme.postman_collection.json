@@ -1,0 +1,1034 @@
+{
+  "info": {
+    "_postman_id": "a9e145b2-328b-4c22-b5b6-79cfb42a9b40",
+    "name": "PasoFirme",
+    "description": "Colección completa de pruebas de contrato y funcionales para el sistema distribuido PasoFirme. Todas las peticiones se realizan a través de la pasarela Gateway (puerto 18080) hacia el microservicio de zapatos.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:18080",
+      "type": "string"
+    },
+    {
+      "key": "id1",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "id2",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "idOpcional",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "idNuevo",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "preRechazos",
+      "value": "[]",
+      "type": "string"
+    },
+    {
+      "key": "countPreValidacion",
+      "value": "0",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "01 - Flujo Principal de Negocio",
+      "item": [
+        {
+          "name": "01 - GET Inicial Zapatos",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "// Reiniciar variables transitorias al iniciar la ejecucion de la coleccion",
+                  "pm.collectionVariables.set(\"id1\", \"\");",
+                  "pm.collectionVariables.set(\"id2\", \"\");",
+                  "pm.collectionVariables.set(\"idOpcional\", \"\");",
+                  "pm.collectionVariables.set(\"idNuevo\", \"\");",
+                  "pm.collectionVariables.set(\"preRechazos\", \"[]\");",
+                  "pm.collectionVariables.set(\"countPreValidacion\", \"0\");",
+                  "pm.collectionVariables.set(\"initialIds\", \"[]\");"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code es 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Respuesta es un arreglo JSON y guarda IDs iniciales\", function () {",
+                  "    var data = pm.response.json();",
+                  "    pm.expect(Array.isArray(data)).to.be.true;",
+                  "    var initialIds = data.map(function(item) { return item.id; });",
+                  "    pm.collectionVariables.set(\"initialIds\", JSON.stringify(initialIds));",
+                  "    pm.collectionVariables.set(\"countPreValidacion\", data.length);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/zapatos",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "zapatos"]
+            },
+            "description": "Consulta inicial de la colección. Comprueba respuesta 200 y formato de arreglo JSON sin exigir base de datos vacía."
+          },
+          "response": []
+        },
+        {
+          "name": "02 - POST Zapato 1 (Bata)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code es 201 Created\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test(\"ID es entero positivo y los datos coinciden exactamente\", function () {",
+                  "    var res = pm.response.json();",
+                  "    pm.expect(res.id).to.be.a('number');",
+                  "    pm.expect(res.id).to.be.above(0);",
+                  "    pm.expect(Number.isInteger(res.id)).to.be.true;",
+                  "    pm.expect(res.marca).to.eql(\"Bata\");",
+                  "    pm.expect(res.talla).to.eql(39);",
+                  "    pm.expect(Number(res.precio)).to.eql(129900.50);",
+                  "    pm.expect(res.fechaIngreso).to.eql(\"2026-10-27\");",
+                  "    pm.expect(res.disponible).to.be.true;",
+                  "    pm.collectionVariables.set(\"id1\", res.id);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"marca\": \"Bata\",\n  \"talla\": 39,\n  \"precio\": 129900.50,\n  \"fechaIngreso\": \"2026-10-27\",\n  \"disponible\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/zapatos",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "zapatos"]
+            },
+            "description": "Registro de primer zapato válido. Almacena id1 para verificaciones posteriores."
+          },
+          "response": []
+        },
+        {
+          "name": "03 - POST Zapato 2 (Adidas - disponible false)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code es 201 Created\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test(\"ID es distinto de id1 y disponible es estrictamente false\", function () {",
+                  "    var res = pm.response.json();",
+                  "    var id1 = Number(pm.collectionVariables.get(\"id1\"));",
+                  "    pm.expect(res.id).to.be.a('number');",
+                  "    pm.expect(res.id).to.not.eql(id1);",
+                  "    pm.expect(res.marca).to.eql(\"Adidas\");",
+                  "    pm.expect(res.talla).to.eql(42);",
+                  "    pm.expect(Number(res.precio)).to.eql(249900.00);",
+                  "    pm.expect(res.fechaIngreso).to.eql(\"2026-10-26\");",
+                  "    pm.expect(res.disponible).to.not.be.null;",
+                  "    pm.expect(res.disponible).to.be.false;",
+                  "    pm.collectionVariables.set(\"id2\", res.id);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"marca\": \"Adidas\",\n  \"talla\": 42,\n  \"precio\": 249900.00,\n  \"fechaIngreso\": \"2026-10-26\",\n  \"disponible\": false\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/zapatos",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "zapatos"]
+            },
+            "description": "Registro de segundo zapato. Comprueba que el valor booleano false se conserve y no mute a null."
+          },
+          "response": []
+        },
+        {
+          "name": "04 - GET Zapatos (Verificar id1 e id2 y 6 campos)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code es 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Lista contiene id1 e id2 con exactamente 6 campos por objeto\", function () {",
+                  "    var list = pm.response.json();",
+                  "    var id1 = Number(pm.collectionVariables.get(\"id1\"));",
+                  "    var id2 = Number(pm.collectionVariables.get(\"id2\"));",
+                  "",
+                  "    var item1 = list.find(function(z) { return z.id === id1; });",
+                  "    var item2 = list.find(function(z) { return z.id === id2; });",
+                  "",
+                  "    pm.expect(item1, \"id1 debe estar presente en el listado\").to.not.be.undefined;",
+                  "    pm.expect(item2, \"id2 debe estar presente en el listado\").to.not.be.undefined;",
+                  "",
+                  "    var expectedKeys = [\"id\", \"marca\", \"talla\", \"precio\", \"fechaIngreso\", \"disponible\"];",
+                  "    [item1, item2].forEach(function(item) {",
+                  "        var keys = Object.keys(item);",
+                  "        pm.expect(keys.length).to.eql(6);",
+                  "        expectedKeys.forEach(function(k) {",
+                  "            pm.expect(item).to.have.property(k);",
+                  "        });",
+                  "    });",
+                  "",
+                  "    pm.collectionVariables.set(\"preRechazos\", JSON.stringify(list));",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/zapatos",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "zapatos"]
+            },
+            "description": "Verifica presencia de id1 e id2 y estructura exacta de 6 campos por entidad sin asumir orden ni cantidad fija total."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "02 - Métodos No Permitidos y Protección de Rutas",
+      "item": [
+        {
+          "name": "05a - DELETE Colección /api/zapatos",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code es 405 Method Not Allowed\", function () {",
+                  "    pm.response.to.have.status(405);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/zapatos",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "zapatos"]
+            },
+            "description": "Intento de borrado masivo sobre /api/zapatos. Debe responder 405."
+          },
+          "response": []
+        },
+        {
+          "name": "05b - DELETE Elemento /api/zapatos/{{id1}}",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code es 404 Not Found\", function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/zapatos/{{id1}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "zapatos", "{{id1}}"]
+            },
+            "description": "Intento de borrado individual sobre subruta /api/zapatos/{id}. Al no existir la ruta en el servicio, debe responder 404."
+          },
+          "response": []
+        },
+        {
+          "name": "05c - PUT /api/zapatos",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code es 405 Method Not Allowed\", function () {",
+                  "    pm.response.to.have.status(405);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": {{id1}},\n  \"marca\": \"Intento PUT\",\n  \"talla\": 40,\n  \"precio\": 150000.00,\n  \"fechaIngreso\": \"2026-10-27\",\n  \"disponible\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/zapatos",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "zapatos"]
+            },
+            "description": "Intento de actualización PUT con JSON válido. Debe responder 405."
+          },
+          "response": []
+        },
+        {
+          "name": "05d - PATCH /api/zapatos",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code es 405 Method Not Allowed\", function () {",
+                  "    pm.response.to.have.status(405);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"marca\": \"Intento PATCH\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/zapatos",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "zapatos"]
+            },
+            "description": "Intento de modificación parcial PATCH con JSON válido. Debe responder 405."
+          },
+          "response": []
+        },
+        {
+          "name": "06 - GET Zapatos (Confirmar Integridad tras Rechazos)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code es 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Registros inalterados tras intentos rechazados de DELETE/PUT/PATCH\", function () {",
+                  "    var currentList = pm.response.json();",
+                  "    var preList = JSON.parse(pm.collectionVariables.get(\"preRechazos\"));",
+                  "",
+                  "    pm.expect(currentList.length).to.eql(preList.length);",
+                  "",
+                  "    preList.forEach(function(preItem) {",
+                  "        var match = currentList.find(function(c) { return c.id === preItem.id; });",
+                  "        pm.expect(match, \"El registro con ID \" + preItem.id + \" debe persistir\").to.not.be.undefined;",
+                  "        pm.expect(match.marca).to.eql(preItem.marca);",
+                  "        pm.expect(match.talla).to.eql(preItem.talla);",
+                  "        pm.expect(match.precio).to.eql(preItem.precio);",
+                  "        pm.expect(match.fechaIngreso).to.eql(preItem.fechaIngreso);",
+                  "        pm.expect(match.disponible).to.eql(preItem.disponible);",
+                  "    });",
+                  "",
+                  "    pm.collectionVariables.set(\"countPreValidacion\", currentList.length);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/zapatos",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "zapatos"]
+            },
+            "description": "Comprueba que ninguno de los métodos rechazados (DELETE, PUT, PATCH) modificó ni eliminó datos."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "03 - Validaciones de Negocio y Formato (HTTP 400)",
+      "item": [
+        {
+          "name": "07a - POST Sin Campo Marca",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code es 400 Bad Request\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"talla\": 38,\n  \"precio\": 99000.00,\n  \"fechaIngreso\": \"2026-10-27\",\n  \"disponible\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/zapatos",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "zapatos"]
+            },
+            "description": "Intento de registro sin la propiedad 'marca'. Debe responder 400."
+          },
+          "response": []
+        },
+        {
+          "name": "07b - POST Marca Vacía",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code es 400 Bad Request\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"marca\": \"\",\n  \"talla\": 38,\n  \"precio\": 99000.00,\n  \"fechaIngreso\": \"2026-10-27\",\n  \"disponible\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/zapatos",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "zapatos"]
+            },
+            "description": "Intento de registro con 'marca' vacía. Debe responder 400."
+          },
+          "response": []
+        },
+        {
+          "name": "07c - POST Marca Solo Espacios",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code es 400 Bad Request\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"marca\": \"   \",\n  \"talla\": 38,\n  \"precio\": 99000.00,\n  \"fechaIngreso\": \"2026-10-27\",\n  \"disponible\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/zapatos",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "zapatos"]
+            },
+            "description": "Intento de registro con 'marca' compuesta únicamente por espacios en blanco. Debe responder 400."
+          },
+          "response": []
+        },
+        {
+          "name": "08a - POST Talla Cero",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code es 400 Bad Request\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"marca\": \"Nike\",\n  \"talla\": 0,\n  \"precio\": 120000.00\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/zapatos",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "zapatos"]
+            },
+            "description": "Talla igual a 0. Viola @Positive. Debe responder 400."
+          },
+          "response": []
+        },
+        {
+          "name": "08b - POST Talla Negativa",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code es 400 Bad Request\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"marca\": \"Nike\",\n  \"talla\": -5,\n  \"precio\": 120000.00\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/zapatos",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "zapatos"]
+            },
+            "description": "Talla negativa. Viola @Positive. Debe responder 400."
+          },
+          "response": []
+        },
+        {
+          "name": "08c - POST Precio Negativo",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code es 400 Bad Request\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"marca\": \"Nike\",\n  \"talla\": 40,\n  \"precio\": -50000.00\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/zapatos",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "zapatos"]
+            },
+            "description": "Precio menor a cero. Viola @DecimalMin. Debe responder 400."
+          },
+          "response": []
+        },
+        {
+          "name": "08d - POST Precio Más de 2 Decimales (1.234)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code es 400 Bad Request\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"marca\": \"Nike\",\n  \"talla\": 40,\n  \"precio\": 1.234\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/zapatos",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "zapatos"]
+            },
+            "description": "Precio con 3 dígitos fraccionarios. Viola @Digits(fraction=2). Debe responder 400."
+          },
+          "response": []
+        },
+        {
+          "name": "08e - POST Fecha Imposible (2026-02-30)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code es 400 Bad Request\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"marca\": \"Nike\",\n  \"fechaIngreso\": \"2026-02-30\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/zapatos",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "zapatos"]
+            },
+            "description": "Fecha inexistente en el calendario (30 de febrero). Deserialización falla y responde 400."
+          },
+          "response": []
+        },
+        {
+          "name": "08f - POST JSON Mal Formado",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code es 400 Bad Request\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"marca\": \"Nike\",\n  \"talla\": "
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/zapatos",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "zapatos"]
+            },
+            "description": "Cuerpo con sintaxis JSON inválida. Debe responder 400 sin generar excepción no controlada."
+          },
+          "response": []
+        },
+        {
+          "name": "08g - GET Zapatos (Confirmar que los 400 no añadieron filas)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code es 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Cantidad de registros idéntica: ninguna petición 400 agregó filas\", function () {",
+                  "    var currentList = pm.response.json();",
+                  "    var prevCount = Number(pm.collectionVariables.get(\"countPreValidacion\"));",
+                  "    pm.expect(currentList.length).to.eql(prevCount);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/zapatos",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "zapatos"]
+            },
+            "description": "Verifica que ninguno de los intentos con código 400 haya persistido filas en base de datos."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "04 - Contrato Opcional e Inmutabilidad de ID",
+      "item": [
+        {
+          "name": "09 - POST Campos Opcionales Omitidos",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code es 201 Created\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test(\"Marca válida y los cuatro campos opcionales son null\", function () {",
+                  "    var res = pm.response.json();",
+                  "    pm.expect(res.id).to.be.a('number');",
+                  "    pm.expect(res.marca).to.eql(\"Puma\");",
+                  "    pm.expect(res.talla).to.be.null;",
+                  "    pm.expect(res.precio).to.be.null;",
+                  "    pm.expect(res.fechaIngreso).to.be.null;",
+                  "    pm.expect(res.disponible).to.be.null;",
+                  "    pm.collectionVariables.set(\"idOpcional\", res.id);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"marca\": \"Puma\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/zapatos",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "zapatos"]
+            },
+            "description": "Demuestra el contrato de campos opcionales: solo 'marca' es obligatorio; los otros cuatro campos se persisten y devuelven como null."
+          },
+          "response": []
+        },
+        {
+          "name": "10a - POST con ID Recibido en Body (ID Ignorado)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code es 201 Created\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test(\"El ID enviado fue ignorado y se asignó un ID autoincremental nuevo\", function () {",
+                  "    var res = pm.response.json();",
+                  "    var id1 = Number(pm.collectionVariables.get(\"id1\"));",
+                  "    pm.expect(res.id).to.be.a('number');",
+                  "    pm.expect(res.id).to.not.eql(id1);",
+                  "    pm.expect(res.marca).to.eql(\"Reebok Nuevo\");",
+                  "    pm.collectionVariables.set(\"idNuevo\", res.id);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": {{id1}},\n  \"marca\": \"Reebok Nuevo\",\n  \"talla\": 41,\n  \"precio\": 189000.00,\n  \"fechaIngreso\": \"2026-10-27\",\n  \"disponible\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/zapatos",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "zapatos"]
+            },
+            "description": "Envía 'id' en el cuerpo del POST. Comprueba que el servicio ignore el ID recibido y genere uno nuevo por autoincremento."
+          },
+          "response": []
+        },
+        {
+          "name": "10b - GET Zapatos (Verificar Inmutabilidad de id1)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code es 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"El registro original con id1 no fue modificado y el nuevo registro existe\", function () {",
+                  "    var list = pm.response.json();",
+                  "    var id1 = Number(pm.collectionVariables.get(\"id1\"));",
+                  "    var idNuevo = Number(pm.collectionVariables.get(\"idNuevo\"));",
+                  "    var idOpcional = Number(pm.collectionVariables.get(\"idOpcional\"));",
+                  "",
+                  "    var original = list.find(function(z) { return z.id === id1; });",
+                  "    pm.expect(original, \"El registro original id1 debe existir\").to.not.be.undefined;",
+                  "    pm.expect(original.marca).to.eql(\"Bata\");",
+                  "    pm.expect(original.talla).to.eql(39);",
+                  "    pm.expect(Number(original.precio)).to.eql(129900.50);",
+                  "    pm.expect(original.fechaIngreso).to.eql(\"2026-10-27\");",
+                  "    pm.expect(original.disponible).to.be.true;",
+                  "",
+                  "    var nuevo = list.find(function(z) { return z.id === idNuevo; });",
+                  "    pm.expect(nuevo, \"El nuevo registro creado debe existir\").to.not.be.undefined;",
+                  "    pm.expect(nuevo.marca).to.eql(\"Reebok Nuevo\");",
+                  "",
+                  "    var opcional = list.find(function(z) { return z.id === idOpcional; });",
+                  "    pm.expect(opcional, \"El registro opcional debe existir\").to.not.be.undefined;",
+                  "    pm.expect(opcional.marca).to.eql(\"Puma\");",
+                  "    pm.expect(opcional.talla).to.be.null;",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/zapatos",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "zapatos"]
+            },
+            "description": "Constata que el zapato original id1 (Bata) permanece intacto y que se crearon los nuevos registros correspondientes."
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

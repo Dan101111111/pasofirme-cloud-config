@@ -1,0 +1,35 @@
+$kind: http-request
+description: Envía 'id' en el cuerpo del POST. Comprueba que el servicio ignore el ID recibido y genere uno nuevo por autoincremento.
+url: "{{baseUrl}}/api/zapatos"
+method: POST
+headers:
+  Content-Type: application/json
+  Accept: application/json
+body:
+  type: text
+  content: |-
+    {
+      "id": {{id1}},
+      "marca": "Reebok Nuevo",
+      "talla": 41,
+      "precio": 189000.00,
+      "fechaIngreso": "2026-10-27",
+      "disponible": true
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status code es 201 Created", function () {
+          pm.response.to.have.status(201);
+      });
+
+      pm.test("El ID enviado fue ignorado y se asignó un ID autoincremental nuevo", function () {
+          var res = pm.response.json();
+          var id1 = Number(pm.collectionVariables.get("id1"));
+          pm.expect(res.id).to.be.a('number');
+          pm.expect(res.id).to.not.eql(id1);
+          pm.expect(res.marca).to.eql("Reebok Nuevo");
+          pm.collectionVariables.set("idNuevo", res.id);
+      });
+    language: text/javascript
+order: 2000

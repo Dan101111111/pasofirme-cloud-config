@@ -1,0 +1,38 @@
+$kind: http-request
+description: Constata que el zapato original id1 (Bata) permanece intacto y que se crearon los nuevos registros correspondientes.
+url: "{{baseUrl}}/api/zapatos"
+method: GET
+headers:
+  Accept: application/json
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status code es 200 OK", function () {
+          pm.response.to.have.status(200);
+      });
+
+      pm.test("El registro original con id1 no fue modificado y el nuevo registro existe", function () {
+          var list = pm.response.json();
+          var id1 = Number(pm.collectionVariables.get("id1"));
+          var idNuevo = Number(pm.collectionVariables.get("idNuevo"));
+          var idOpcional = Number(pm.collectionVariables.get("idOpcional"));
+
+          var original = list.find(function(z) { return z.id === id1; });
+          pm.expect(original, "El registro original id1 debe existir").to.not.be.undefined;
+          pm.expect(original.marca).to.eql("Bata");
+          pm.expect(original.talla).to.eql(39);
+          pm.expect(Number(original.precio)).to.eql(129900.50);
+          pm.expect(original.fechaIngreso).to.eql("2026-10-27");
+          pm.expect(original.disponible).to.be.true;
+
+          var nuevo = list.find(function(z) { return z.id === idNuevo; });
+          pm.expect(nuevo, "El nuevo registro creado debe existir").to.not.be.undefined;
+          pm.expect(nuevo.marca).to.eql("Reebok Nuevo");
+
+          var opcional = list.find(function(z) { return z.id === idOpcional; });
+          pm.expect(opcional, "El registro opcional debe existir").to.not.be.undefined;
+          pm.expect(opcional.marca).to.eql("Puma");
+          pm.expect(opcional.talla).to.be.null;
+      });
+    language: text/javascript
+order: 3000
